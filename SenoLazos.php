@@ -1,18 +1,39 @@
 <?php
 
+/**
+ * Class SenoLazos
+ */
 class SenoLazos
 {
+    /**
+     * Index of the positions.
+     */
+    const POSITION_VERTICAL     = 1;
+    const POSITION_HORIZONTAL   = 0;
+
+    /**
+     * Current position.
+     *
+     * @var array
+     */
     protected $currentPosition = array( 0, 0 );
+
+    /**
+     * Road.
+     *
+     * @var array
+     */
     protected $road = array();
 
     /**
-     *
+     * Constructs.
      */
     public function __construct() {
         $this->addCurrentPositionToRoad();
     }
 
     /**
+     * Process the road input and return the optimized road.
      *
      * @param string $input
      * @return string
@@ -34,28 +55,29 @@ class SenoLazos
     }
 
     /**
+     * Update the current position, according to the movement.
      *
      * @param string $move
      */
     protected function updateCurrentPosition( $move ) {
         switch ( $move ) {
             case 'S':
-                $this->currentPosition[1]--;
+                $this->currentPosition[ self::POSITION_VERTICAL ]--;
                 break;
             case 'N':
-                $this->currentPosition[1]++;
+                $this->currentPosition[ self::POSITION_VERTICAL ]++;
                 break;
             case 'O':
-                $this->currentPosition[0]--;
+                $this->currentPosition[ self::POSITION_HORIZONTAL ]--;
                 break;
             case 'E':
-                $this->currentPosition[0]++;
+                $this->currentPosition[ self::POSITION_HORIZONTAL ]++;
                 break;
         }
     }
 
     /**
-     *
+     * Add the current position to the road.
      */
     protected function addCurrentPositionToRoad()
     {
@@ -63,19 +85,18 @@ class SenoLazos
     }
 
     /**
-     *
+     * Optimize the road, trying to find the loop and removing them.
      */
     protected function optimizeRoad()
     {
-        $roadLength = count( $this->road );
+        $indexesMatched = array_keys( $this->road, $this->currentPosition );
 
-        $positionsRepeated = array_keys( $this->road, $this->currentPosition );
-
-        if ( 2 === count( $positionsRepeated ) ) {
-            $positions = array_keys( $this->road );
-            foreach ( $positions as $position) {
-                if ( $position > $positionsRepeated[0] ) {
-                    unset( $this->road[ $position ] );
+        // If the road passes by the same point twice.
+        if ( 2 === count( $indexesMatched ) ) {
+            $indexes = array_keys( $this->road );
+            foreach ( $indexes as $index) {
+                if ( $index > $indexesMatched[0] ) {
+                    unset( $this->road[ $index ] );
 
                 }
             }
@@ -83,38 +104,47 @@ class SenoLazos
     }
 
     /**
-     *
+     * Return the road output.
      */
     protected function getOutput()
     {
         $output = '';
 
-        $positions = array_keys( $this->road );
-        foreach ( $positions as $key => $position) {
-            if ( 0 === $position ) {
+        $indexes = array_keys( $this->road );
+        foreach ( $indexes as $key => $index ) {
+            if ( 0 === $index ) {
                 continue;
             }
 
-            $currentPosition = $this->road[ $position ];
-            $previousPosition = $this->road[ $positions[ $key-1 ] ];
-            $output .= $this->getMove( $currentPosition, $previousPosition );
+            $currentPosition  = $this->road[ $index ];
+            $previousPosition = $this->road[ $indexes[ $key-1 ] ];
+            $output .= $this->getMove( $previousPosition, $currentPosition );
         }
 
         return $output;
     }
 
-    protected function getMove( $currentPosition, $previousPosition )
+    /**
+     * Return the movement between the two posicions.
+     *
+     * @param array $startPosition
+     * @param array $endPosition
+     * @return string
+     */
+    protected function getMove( $startPosition, $endPosition )
     {
         $move = '';
 
-        if ( $currentPosition[0] === $previousPosition[0] ) {
-            if ( $currentPosition[1] > $previousPosition[1] ) {
+        // If the move is vertical.
+        if ( $endPosition[0] === $startPosition[0] ) {
+            if ( $endPosition[1] > $startPosition[1] ) {
                 $move = 'N';
             } else {
                 $move = 'S';
             }
+        // If the move is horizontal.
         } else {
-            if ( $currentPosition[0] > $previousPosition[0] ) {
+            if ( $endPosition[0] > $startPosition[0] ) {
                 $move = 'E';
             } else {
                 $move = 'O';

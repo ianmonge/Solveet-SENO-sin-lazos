@@ -2,8 +2,16 @@
 
 require_once 'SenoLazos.php';
 
+/**
+ * Tests the class SenoLazos.
+ */
 class SenoLazosTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * Provider of road to process.
+     *
+     * @return array
+     */
     public function getProvider()
     {
         return array(
@@ -31,6 +39,8 @@ class SenoLazosTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests the main process.
+     *
      * @dataProvider getProvider
      */
     public function testMain( $input, $output )
